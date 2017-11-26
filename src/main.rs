@@ -120,7 +120,7 @@ fn assemble_line(line: &str) -> Result<Instruction, Error> {
 		Some("and") => instruction_builder.opcode_hex = Some(AND), 
 		Some("bor") => instruction_builder.opcode_hex = Some(BOR), 
 		Some("xor") => instruction_builder.opcode_hex = Some(XOR), 
-		_ => return Err(Error::ParseLineError)
+		_ => return Err(Error::ParseNoOpcodeError)
 	}
 
 	match tokens.get(1).map(|s| *s) {
@@ -138,7 +138,7 @@ fn assemble_line(line: &str) -> Result<Instruction, Error> {
 		Some("rc") => instruction_builder.target_hex = Some(RC),
 		Some("hlt") => instruction_builder.target_hex = Some(HLT),
 		Some("sys") => instruction_builder.target_hex = Some(SYS),
-		_ => return Err(Error::ParseLineError)
+		_ => return Err(Error::ParseNoTargetError)
 	}
 	
 	match tokens.get(2).map(|s| *s) {
@@ -155,6 +155,7 @@ fn assemble_line(line: &str) -> Result<Instruction, Error> {
 		Some("rf") => instruction_builder.value_hex = Some(RF),
 		Some("rc") => instruction_builder.value_hex = Some(RC),
 		Some(x) => instruction_builder.value_hex = x.parse::<u8>().ok(),
+		Some(error) => return Err(Error::ParseNoValueError),
 		_ => {}
 	}
 
@@ -170,22 +171,35 @@ fn assemble_file(path: &str) -> Result<Vec<Instruction>, Error> {
 		let line = line.trim();
 		if line.starts_with('#') || line.is_empty() { continue };
 		match assemble_line(line) {
-			Ok(instruction) => code.push(instruction),
-			Err(error) => { println!("Parse error at line number {}: {:?}", linenumber, line); return Err(error)}
-		}
+			Ok(instruction) => { code.push(instruction); println!("\t{}:\t0x{:4x}\t#{}", linenumber, instruction, line) },
+			Err(error) => {
+				match error {
+					Error::ParseNoOpcodeError => println!("Error at line {}: {}\n\t-> Hint: Invalid opcode", linenumber, line),
+					Error::ParseNoTargetError => println!("Error at line {}: {}\n\t-> Hint: Must be a register, \"hlt\", or \"sys\"", linenumber, line),
+					Error::ParseNoValueError => println!("Error at line {}: {}\n\t-> Hint: Must be a register (integer in case of \"set\")", linenumber, line),
+					_ => println!("Unknown error at line number {}: {:?}", linenumber, line)
+				};
+				return Err(error)
+			}
+		};
        	};
 
 	Ok(code)
 }
 
+
 fn main() {
+	let mut filepath: String;
 	if let Some (arg1) = env::args().nth(1) {
-		match assemble_file(&arg1) {
-			Ok(assembly) => println!("assembled: {:?}", assembly),
-			Err(error) => { println!("failed to parse file {}", arg1); exit(1) }
-		}
+		filepath = arg1;
         } else {
                 println!("Usage: ./rvm <path_to_assembly_code>");
                 exit(1);
         }
+
+	println!("Assembling {}", filepath);
+	match assemble_file(&filepath) {
+		Ok(assembly) => println!("success!"),
+		Err(error) => { println!("failed to parse file {}", filepath); exit(1) }
+	}
 }

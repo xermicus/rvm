@@ -1,4 +1,4 @@
-#set r0 2
+set r0 2
 chk r0 r1
 set rc 0
 cns rn 37
