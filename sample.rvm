@@ -2,4 +2,5 @@
 chk r0 r1
 set rc 0
 cns rn 37
+add r0 1
 int hlt
