@@ -40,18 +40,13 @@ impl InstructionBuilder {
 		if let Some(target) = self.target_hex {
 			self.instruction += (target as u16) << 8;
 		} else { return Err(Error::ParseNoTargetError) }
-			/*match self.opcode_hex {
-				Some(0) => return Ok(self.instruction),
-				_ => return Err(Error::ParseNoTargetError)
-			};
-		}*/
 
 		if let Some(value) = self.value_hex {
 			self.instruction += (value as u16);
 		} else {
 			match self.target_hex {
-				Some(0) => return Ok(self.instruction),
-				Some(1) => return Ok(self.instruction),
+				Some(0xc) => return Ok(self.instruction),
+				Some(0xd) => return Ok(self.instruction),
 				_ => return Err(Error::ParseNoValueError)
 			}
 		}
@@ -72,8 +67,6 @@ fn disassemble_line(line: Instruction) -> Sloc {
 }
 
 
-
-
 fn assemble_line(line: &str) -> Result<Instruction, Error> {
 	let tokens: Vec<&str> = line.split(" ").collect();
 	
@@ -81,12 +74,56 @@ fn assemble_line(line: &str) -> Result<Instruction, Error> {
 
 	match tokens.get(0).map(|s| *s) {
 		Some("int") => instruction_builder.opcode_hex = Some(0), 
+		Some("set") => instruction_builder.opcode_hex = Some(2), 
+		Some("sto") => instruction_builder.opcode_hex = Some(3), 
+		Some("add") => instruction_builder.opcode_hex = Some(4), 
+		Some("sub") => instruction_builder.opcode_hex = Some(5), 
+		Some("mul") => instruction_builder.opcode_hex = Some(6), 
+		Some("div") => instruction_builder.opcode_hex = Some(7), 
+		Some("chk") => instruction_builder.opcode_hex = Some(8), 
+		Some("cns") => instruction_builder.opcode_hex = Some(9), 
+		Some("lpt") => instruction_builder.opcode_hex = Some(0xa), 
+		Some("lsh") => instruction_builder.opcode_hex = Some(0xb), 
+		Some("rsh") => instruction_builder.opcode_hex = Some(0xc), 
+		Some("and") => instruction_builder.opcode_hex = Some(0xd), 
+		Some("bor") => instruction_builder.opcode_hex = Some(0xe), 
+		Some("xor") => instruction_builder.opcode_hex = Some(0xf), 
 		_ => return Err(Error::ParseLineError)
 	}
 
 	match tokens.get(1).map(|s| *s) {
-		Some("0") => instruction_builder.target_hex = Some(0),
+		Some("r0") => instruction_builder.target_hex = Some(0),
+		Some("r1") => instruction_builder.target_hex = Some(1),
+		Some("r2") => instruction_builder.target_hex = Some(2),
+		Some("r3") => instruction_builder.target_hex = Some(3),
+		Some("r4") => instruction_builder.target_hex = Some(4),
+		Some("r5") => instruction_builder.target_hex = Some(5),
+		Some("r6") => instruction_builder.target_hex = Some(6),
+		Some("r7") => instruction_builder.target_hex = Some(7),
+		Some("rn") => instruction_builder.target_hex = Some(8),
+		Some("rd") => instruction_builder.target_hex = Some(9),
+		Some("rf") => instruction_builder.target_hex = Some(0xa),
+		Some("rc") => instruction_builder.target_hex = Some(0xb),
+		Some("hlt") => instruction_builder.target_hex = Some(0xc),
+		Some("sys") => instruction_builder.target_hex = Some(0xd),
 		_ => return Err(Error::ParseLineError)
+	}
+	
+	match tokens.get(2).map(|s| *s) {
+		Some("r0") => instruction_builder.value_hex = Some(0),
+		Some("r1") => instruction_builder.value_hex = Some(1),
+		Some("r2") => instruction_builder.value_hex = Some(2),
+		Some("r3") => instruction_builder.value_hex = Some(3),
+		Some("r4") => instruction_builder.value_hex = Some(4),
+		Some("r5") => instruction_builder.value_hex = Some(5),
+		Some("r6") => instruction_builder.value_hex = Some(6),
+		Some("r7") => instruction_builder.value_hex = Some(7),
+		Some("rn") => instruction_builder.value_hex = Some(8),
+		Some("rd") => instruction_builder.value_hex = Some(9),
+		Some("rf") => instruction_builder.value_hex = Some(0xa),
+		Some("rc") => instruction_builder.value_hex = Some(0xb),
+		Some(x) => instruction_builder.value_hex = x.parse::<u8>().ok(),
+		_ => {}
 	}
 
 	instruction_builder.build_Instruction()
