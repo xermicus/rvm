@@ -1,0 +1,37 @@
+32bit:
+1x 4bit for register
+1x 4bit instructions
+1x 8bit for value
+
+registers: 
+	r0	0	general purpose registers
+	r1	1	general purpose registers
+	r2	2	general purpose registers
+	r3	3	general purpose registers
+	r4	4	general purpose registers
+	r5	5	general purpose registers
+	r6	6	general purpose registers
+	r7	7	general purpose registers
+	rn	8	next instruction
+	rd	9	data pointer
+	rf	A	flag register: 0=, 1<, 2>
+	rc	B	conditional register: 0=, 1<, 2>
+
+instructions:
+	int	0	interrupt: 0 = hlt, 1 = syscall	
+	reserved1
+	set	2	load value into register
+	sto	3	store value to data section
+	add	4	addition
+	sub	5	subtraction
+	mul	6	multiplication
+	sub	7	division
+	chk	8	compare
+	cns	9	conditional set: set register depending on rf to value according to cr. eg: (chk r0, r1; set rc 0; cnd rn 37) will set rn to 37 if r0 = r1
+	lpt	A	load pointer
+	lsh	B	left shift
+	rsh	C	right shift
+	and	D	bitwise and
+	bor	E	bitwise or
+	xor	F	bitwise xor
+

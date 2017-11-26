@@ -1,0 +1,6 @@
+[package]
+name = "rvm"
+version = "0.1.0"
+authors = ["xermic <bigcyrill@hotmail.com>"]
+
+[dependencies]
