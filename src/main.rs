@@ -65,7 +65,7 @@ struct InstructionBuilder {
 }
 
 impl InstructionBuilder {
-	fn build_Instruction(mut self) -> Result<Instruction, Error> {
+	fn build_instruction(mut self) -> Result<Instruction, Error> {
 		if let Some(opcode) = self.opcode_hex {
 			self.instruction = (opcode as u16) << 12;
 		} else { return Err(Error::ParseNoOpcodeError) }
@@ -75,7 +75,7 @@ impl InstructionBuilder {
 		} else { return Err(Error::ParseNoTargetError) }
 
 		if let Some(value) = self.value_hex {
-			self.instruction += (value as u16);
+			self.instruction += value as u16;
 		} else {
 			match self.target_hex {
 				Some(HLT) => return Ok(self.instruction),
@@ -87,7 +87,7 @@ impl InstructionBuilder {
 		Ok(self.instruction)
 	}
 
-	fn build_Sloc(self) -> Result<Instruction, Error> {
+	fn build_sloc(self) -> Result<Instruction, Error> {
 		unimplemented!()
 	}
 	
@@ -155,15 +155,15 @@ fn assemble_line(line: &str) -> Result<Instruction, Error> {
 		Some("rf") => instruction_builder.value_hex = Some(RF),
 		Some("rc") => instruction_builder.value_hex = Some(RC),
 		Some(x) => instruction_builder.value_hex = x.parse::<u8>().ok(),
-		Some(error) => return Err(Error::ParseNoValueError),
+		//Some(error) => return Err(Error::ParseNoValueError),
 		_ => {}
 	}
 
-	instruction_builder.build_Instruction()
+	instruction_builder.build_instruction()
 }
 
 fn assemble_file(path: &str) -> Result<Vec<Instruction>, Error> {
-	let mut code: Vec<Instruction> = Vec::new();
+	let mut bytecode: Vec<Instruction> = Vec::new();
 
 	let file = File::open(path).unwrap();
        	for (linenumber, line) in BufReader::new(file).lines().enumerate() {
@@ -171,12 +171,12 @@ fn assemble_file(path: &str) -> Result<Vec<Instruction>, Error> {
 		let line = line.trim();
 		if line.starts_with('#') || line.is_empty() { continue };
 		match assemble_line(line) {
-			Ok(instruction) => { code.push(instruction); println!("\t{}:\t0x{:4x}\t#{}", linenumber, instruction, line) },
+			Ok(instruction) => { bytecode.push(instruction); println!("\t{}:\t0x{:4x}\t#{}", linenumber, instruction, line) },
 			Err(error) => {
 				match error {
 					Error::ParseNoOpcodeError => println!("Error at line {}: {}\n\t-> Hint: Invalid opcode", linenumber, line),
 					Error::ParseNoTargetError => println!("Error at line {}: {}\n\t-> Hint: Must be a register, \"hlt\", or \"sys\"", linenumber, line),
-					Error::ParseNoValueError => println!("Error at line {}: {}\n\t-> Hint: Must be a register (integer in case of \"set\")", linenumber, line),
+					Error::ParseNoValueError => println!("Error at line {}: {}\n\t-> Hint: Must be a register (8bit integer in case of \"set\")", linenumber, line),
 					_ => println!("Unknown error at line number {}: {:?}", linenumber, line)
 				};
 				return Err(error)
@@ -184,7 +184,7 @@ fn assemble_file(path: &str) -> Result<Vec<Instruction>, Error> {
 		};
        	};
 
-	Ok(code)
+	Ok(bytecode)
 }
 
 
