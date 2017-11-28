@@ -23,7 +23,7 @@ instructions:
 	int	0	interrupt: 0 = hlt, 1 = syscall	
 	reserved1
 	set	2	load value into register
-	sto	3	store value to data section
+	sto	3	store value to data section, increases rd for free
 	add	4	addition
 	sub	5	subtraction
 	mul	6	multiplication
