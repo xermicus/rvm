@@ -6,11 +6,11 @@ use super::*;
 #[derive(Default, Debug)]
 struct InstructionBuilder {
 	opcode_string: Option<String>,
-	opcode_hex: Option<u8>,
+	opcode_hex: Option<Rsize>,
 	target_string: Option<String>,
-	target_hex: Option<u8>,
+	target_hex: Option<Rsize>,
 	value_string: Option<String>,
-	value_hex: Option<u8>,
+	value_hex: Option<Rsize>,
 	instruction: Instruction,
 	sloc: Sloc
 }
@@ -58,7 +58,8 @@ fn assemble_line(line: &str) -> Result<Instruction, Error> {
 	match tokens.get(0).map(|s| *s) {
 		Some("int") => instruction_builder.opcode_hex = Some(INT), 
 		Some("set") => instruction_builder.opcode_hex = Some(SET), 
-		Some("sto") => instruction_builder.opcode_hex = Some(STO), 
+		Some("psh") => instruction_builder.opcode_hex = Some(PSH), 
+		Some("pop") => instruction_builder.opcode_hex = Some(POP), 
 		Some("add") => instruction_builder.opcode_hex = Some(ADD), 
 		Some("sub") => instruction_builder.opcode_hex = Some(SUB), 
 		Some("mul") => instruction_builder.opcode_hex = Some(MUL), 
@@ -105,8 +106,7 @@ fn assemble_line(line: &str) -> Result<Instruction, Error> {
 		Some("rd") => instruction_builder.value_hex = Some(RD),
 		Some("rf") => instruction_builder.value_hex = Some(RF),
 		Some("rc") => instruction_builder.value_hex = Some(RC),
-		Some(x) => instruction_builder.value_hex = x.parse::<u8>().ok(),
-		//Some(error) => return Err(Error::ParseNoValueError),
+		Some(x) => instruction_builder.value_hex = x.parse::<Rsize>().ok(),
 		_ => {}
 	}
 

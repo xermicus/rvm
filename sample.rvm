@@ -1,4 +1,5 @@
 set r0 2
+#int sys
 chk r0 r1
 set rc 0
 cns rn 37
