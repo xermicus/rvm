@@ -16,8 +16,7 @@ const RN: Rsize = 0x8;
 const RD: Rsize = 0x9;
 const RF: Rsize = 0xa;
 const RC: Rsize = 0xb;
-const HLT: Rsize = 0xc;
-const SYS: Rsize = 0xd;
+const RS: Rsize = 0xc;
 
 const INT: Rsize = 0x0;
 const SET: Rsize = 0x1;
@@ -35,6 +34,9 @@ const RSH: Rsize = 0xc;
 const AND: Rsize = 0xd;
 const BOR: Rsize = 0xe;
 const XOR: Rsize = 0xf;
+
+const SYSHALT: u8 = 0x0;
+const SYSCALL: u8 = 0x1;
 
 pub enum Error {
         ParseNoOpcodeError,

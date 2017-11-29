@@ -23,17 +23,16 @@ impl InstructionBuilder {
 
 		if let Some(target) = self.target_hex {
 			self.instruction += (target as u16) << 8;
-		} else { return Err(Error::ParseNoTargetError) }
+		} else { 
+			match self.opcode_hex {
+				Some(INT) => return Ok(self.instruction),
+				_ => return Err(Error::ParseNoTargetError)
+			}
+		}
 
 		if let Some(value) = self.value_hex {
 			self.instruction += value as u16;
-		} else {
-			match self.target_hex {
-				Some(HLT) => return Ok(self.instruction),
-				Some(SYS) => return Ok(self.instruction),
-				_ => return Err(Error::ParseNoValueError)
-			}
-		}
+		} else { return Err(Error::ParseNoValueError) }
 		
 		Ok(self.instruction)
 	}
@@ -56,7 +55,7 @@ fn assemble_line(line: &str) -> Result<Instruction, Error> {
 	let mut instruction_builder = InstructionBuilder::default();	
 
 	match tokens.get(0).map(|s| *s) {
-		Some("int") => instruction_builder.opcode_hex = Some(INT), 
+		Some("int") => { instruction_builder.opcode_hex = Some(INT); return instruction_builder.build_instruction() }, 
 		Some("set") => instruction_builder.opcode_hex = Some(SET), 
 		Some("psh") => instruction_builder.opcode_hex = Some(PSH), 
 		Some("pop") => instruction_builder.opcode_hex = Some(POP), 
@@ -88,8 +87,7 @@ fn assemble_line(line: &str) -> Result<Instruction, Error> {
 		Some("rd") => instruction_builder.target_hex = Some(RD),
 		Some("rf") => instruction_builder.target_hex = Some(RF),
 		Some("rc") => instruction_builder.target_hex = Some(RC),
-		Some("hlt") => instruction_builder.target_hex = Some(HLT),
-		Some("sys") => instruction_builder.target_hex = Some(SYS),
+		Some("rs") => instruction_builder.target_hex = Some(RS),
 		_ => return Err(Error::ParseNoTargetError)
 	}
 	
@@ -133,7 +131,7 @@ pub fn assemble_file(path: &str) -> Result<Bytecode, Error> {
 			Err(error) => {
 				match error {
 					Error::ParseNoOpcodeError => println!("Error at line {}: {}\n\t-> Hint: Invalid opcode", linenumber, line),
-					Error::ParseNoTargetError => println!("Error at line {}: {}\n\t-> Hint: Must be a register, \"hlt\", or \"sys\"", linenumber, line),
+					Error::ParseNoTargetError => println!("Error at line {}: {}\n\t-> Hint: Must be a register", linenumber, line),
 					Error::ParseNoValueError => println!("Error at line {}: {}\n\t-> Hint: Must be a register (8bit integer in case of \"set\")", linenumber, line),
 					_ => println!("Unknown error at line number {}: {:?}", linenumber, line)
 				};

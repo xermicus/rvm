@@ -2,7 +2,7 @@ use super::*;
 
 #[derive(Default, Debug)]
 pub struct Context {
-        registers: [Rsize; 14],
+        registers: [Rsize; 13],
         stack: Stack,
 	bytecode: Bytecode
 }
@@ -33,9 +33,11 @@ impl Context {
 				match decode_opcode(&instruction) {
 					Ok(INT) => {
 						match decode_target(&instruction) {
-							Ok(HLT) => { println!("Debug: got HLT"); return Err(VMError::VMHaltError) },
-							Ok(SYS) => { println!("Debug: got SYS"); return Err(VMError::VMUnimplementedError) },
-							_ => { return Err(VMError::VMInvalidTargetError) }
+							Ok(0) => return Err(VMError::VMHaltError),
+							Ok(1) => {
+								return Err(VMError::VMUnimplementedError)
+							},
+							_ => return Err(VMError::VMInvalidTargetError)
 						}
 					},
 					Ok(SET) => {
@@ -49,6 +51,7 @@ impl Context {
 					},
 					Ok(PSH) => {
 						match decode_target(&instruction) {
+							//if let Som
 							_ => return Err(VMError::VMUnimplementedError)
 						}
 					},
@@ -266,7 +269,7 @@ fn decode_target(instruction: &Instruction) -> Result<Rsize, VMError> {
 
 fn decode_value_as_register(instruction: &Instruction) -> Result<Rsize, VMError> {
 	let result = (instruction & 0x00FF) as Rsize;
-	if result <= 0xd {
+	if result <= 0xb {
 		Ok(result)
 	} else {
 		Err(VMError::VMInvalidTargetError)
