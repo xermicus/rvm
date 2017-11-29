@@ -32,12 +32,12 @@ impl Context {
 				println!("fetched: 0x{:4x}", instruction);
 				match decode_opcode(&instruction) {
 					Ok(INT) => {
-						match decode_target(&instruction) {
-							Ok(0) => return Err(VMError::VMHaltError),
-							Ok(1) => {
+						match self.registers[RS as usize] {
+							HALT => return Err(VMError::VMHaltError),
+							CALL => {
 								return Err(VMError::VMUnimplementedError)
 							},
-							_ => return Err(VMError::VMInvalidTargetError)
+							_ => return Err(VMError::VMUnimplementedError)
 						}
 					},
 					Ok(SET) => {
@@ -260,7 +260,7 @@ fn decode_opcode(instruction: &Instruction) -> Result<Rsize, VMError> {
 
 fn decode_target(instruction: &Instruction) -> Result<Rsize, VMError> {
 	let result = ((instruction & 0x0F00) >> 8) as Rsize;
-	if result <= 0xd {
+	if result <= RS {
 		Ok(result)
 	} else {
 		Err(VMError::VMInvalidTargetError)
@@ -269,7 +269,7 @@ fn decode_target(instruction: &Instruction) -> Result<Rsize, VMError> {
 
 fn decode_value_as_register(instruction: &Instruction) -> Result<Rsize, VMError> {
 	let result = (instruction & 0x00FF) as Rsize;
-	if result <= 0xb {
+	if result <= RS {
 		Ok(result)
 	} else {
 		Err(VMError::VMInvalidTargetError)

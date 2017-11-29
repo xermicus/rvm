@@ -35,8 +35,8 @@ const AND: Rsize = 0xd;
 const BOR: Rsize = 0xe;
 const XOR: Rsize = 0xf;
 
-const SYSHALT: u8 = 0x0;
-const SYSCALL: u8 = 0x1;
+const HALT: u8 = 0x0;
+const CALL: u8 = 0x1;
 
 pub enum Error {
         ParseNoOpcodeError,

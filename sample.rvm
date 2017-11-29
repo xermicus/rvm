@@ -5,4 +5,5 @@ chk r0 r1
 set rc 0
 cns rn r0
 add r0 r1
+set rs 1
 int
