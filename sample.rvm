@@ -1,8 +1,9 @@
-set r0 2
-add r1 12
-int sys
+set r0 10
+set r1 20
+mul r1 r0
+#int sys
 chk r0 r1
 set rc 0
-cns rn 37
-add r0 1
+cns rn r0
+add r0 r1
 int hlt

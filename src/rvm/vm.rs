@@ -62,6 +62,7 @@ impl Context {
 							Ok(target) => {
 								if let Ok(value) = decode_value_as_target(&instruction) {
 									if let Some(new_value) = self.registers[target as usize].checked_add(self.registers[value as usize]) {
+										println!("register: {}\t value: {}", target, new_value);
 										self.registers[target as usize] = new_value;
 										return Ok(instruction)
 									} else {
@@ -74,9 +75,60 @@ impl Context {
 							_ => return Err(VMError::VMRegisterOverflowError)
 						}
 					},
-					Ok(SUB) => {},
-					Ok(MUL) => {},
-					Ok(DIV) => {},
+					Ok(SUB) => {
+						match decode_target(&instruction) {
+							Ok(target) => {
+								if let Ok(value) = decode_value_as_target(&instruction) {
+									if let Some(new_value) = self.registers[target as usize].checked_sub(self.registers[value as usize]) {
+										println!("register: {}\t value: {}", target, new_value);
+										self.registers[target as usize] = new_value;
+										return Ok(instruction)
+									} else {
+										return Err(VMError::VMRegisterOverflowError)
+									};
+								} else { 
+									return Err(VMError::VMInvalidValueError)
+								};
+							},
+							_ => return Err(VMError::VMRegisterOverflowError)
+						}
+					},
+					Ok(MUL) => {
+						match decode_target(&instruction) {
+							Ok(target) => {
+								if let Ok(value) = decode_value_as_target(&instruction) {
+									if let Some(new_value) = self.registers[target as usize].checked_mul(self.registers[value as usize]) {
+										println!("register: {}\t value: {}", target, new_value);
+										self.registers[target as usize] = new_value;
+										return Ok(instruction)
+									} else {
+										return Err(VMError::VMRegisterOverflowError)
+									};
+								} else { 
+									return Err(VMError::VMInvalidValueError)
+								};
+							},
+							_ => return Err(VMError::VMRegisterOverflowError)
+						}
+					},
+					Ok(DIV) => {
+						match decode_target(&instruction) {
+							Ok(target) => {
+								if let Ok(value) = decode_value_as_target(&instruction) {
+									if let Some(new_value) = self.registers[target as usize].checked_div(self.registers[value as usize]) {
+										println!("register: {}\t value: {}", target, new_value);
+										self.registers[target as usize] = new_value;
+										return Ok(instruction)
+									} else {
+										return Err(VMError::VMRegisterOverflowError)
+									};
+								} else { 
+									return Err(VMError::VMInvalidValueError)
+								};
+							},
+							_ => return Err(VMError::VMRegisterOverflowError)
+						}
+					},
 					Ok(CHK) => {},
 					Ok(CNS) => {},
 					Ok(LPT) => {},
@@ -129,6 +181,9 @@ pub fn run(bytecode: Bytecode) -> Result<Context, VMError> {
 					VMError::VMInvalidValueError => {
 						println!("Error while decoding instruction\n\t-> Hint: Invalid Value");
 						break
+					}
+					VMError::VMRegisterOverflowError => {
+						println!("Error while decoding instruction\n\t-> Hint: Register overflow / underflow");
 					}
 					VMError::VMHaltError => break,
 					_ => println!("Unhandled Runtime Error")
