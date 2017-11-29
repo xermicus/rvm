@@ -1,7 +1,6 @@
-set r0 10
-set r1 20
-mul r1 r0
-#int sys
+set r0 129
+set r1 10
+xor r0 r1
 chk r0 r1
 set rc 0
 cns rn r0
