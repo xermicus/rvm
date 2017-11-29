@@ -60,7 +60,7 @@ impl Context {
 					Ok(ADD) => {
 						match decode_target(&instruction) {
 							Ok(target) => {
-								if let Ok(value) = decode_value_as_target(&instruction) {
+								if let Ok(value) = decode_value_as_register(&instruction) {
 									if let Some(new_value) = self.registers[target as usize].checked_add(self.registers[value as usize]) {
 										println!("register: {}\t value: {}", target, new_value);
 										self.registers[target as usize] = new_value;
@@ -78,7 +78,7 @@ impl Context {
 					Ok(SUB) => {
 						match decode_target(&instruction) {
 							Ok(target) => {
-								if let Ok(value) = decode_value_as_target(&instruction) {
+								if let Ok(value) = decode_value_as_register(&instruction) {
 									if let Some(new_value) = self.registers[target as usize].checked_sub(self.registers[value as usize]) {
 										println!("register: {}\t value: {}", target, new_value);
 										self.registers[target as usize] = new_value;
@@ -96,7 +96,7 @@ impl Context {
 					Ok(MUL) => {
 						match decode_target(&instruction) {
 							Ok(target) => {
-								if let Ok(value) = decode_value_as_target(&instruction) {
+								if let Ok(value) = decode_value_as_register(&instruction) {
 									if let Some(new_value) = self.registers[target as usize].checked_mul(self.registers[value as usize]) {
 										println!("register: {}\t value: {}", target, new_value);
 										self.registers[target as usize] = new_value;
@@ -114,7 +114,7 @@ impl Context {
 					Ok(DIV) => {
 						match decode_target(&instruction) {
 							Ok(target) => {
-								if let Ok(value) = decode_value_as_target(&instruction) {
+								if let Ok(value) = decode_value_as_register(&instruction) {
 									if let Some(new_value) = self.registers[target as usize].checked_div(self.registers[value as usize]) {
 										println!("register: {}\t value: {}", target, new_value);
 										self.registers[target as usize] = new_value;
@@ -132,11 +132,61 @@ impl Context {
 					Ok(CHK) => {},
 					Ok(CNS) => {},
 					Ok(LPT) => {},
-					Ok(LSH) => {},
-					Ok(RSH) => {},
-					Ok(AND) => {},
-					Ok(BOR) => {},
-					Ok(XOR) => {},
+					Ok(LSH) => {
+						if let Ok(target) = decode_target(&instruction) {
+							if let Ok(value) = decode_value_as_register(&instruction) {
+								self.registers[target as usize] <<= self.registers[value as usize];
+							} else {
+								return Err(VMError::VMInvalidValueError)
+							}
+						} else {
+							return Err(VMError::VMInvalidTargetError)
+						}
+					},
+					Ok(RSH) => {
+						if let Ok(target) = decode_target(&instruction) {
+							if let Ok(value) = decode_value_as_register(&instruction) {
+								self.registers[target as usize] >>= self.registers[value as usize];
+							} else {
+								return Err(VMError::VMInvalidValueError)
+							}
+						} else {
+							return Err(VMError::VMInvalidTargetError)
+						}
+					},
+					Ok(AND) => {
+						if let Ok(target) = decode_target(&instruction) {
+							if let Ok(value) = decode_value_as_register(&instruction) {
+								self.registers[target as usize] &= self.registers[value as usize];
+							} else {
+								return Err(VMError::VMInvalidValueError)
+							}
+						} else {
+							return Err(VMError::VMInvalidTargetError)
+						}
+					},
+					Ok(BOR) => {
+						if let Ok(target) = decode_target(&instruction) {
+							if let Ok(value) = decode_value_as_register(&instruction) {
+								self.registers[target as usize] |= self.registers[value as usize];
+							} else {
+								return Err(VMError::VMInvalidValueError)
+							}
+						} else {
+							return Err(VMError::VMInvalidTargetError)
+						}
+					},
+					Ok(XOR) => {
+						if let Ok(target) = decode_target(&instruction) {
+							if let Ok(value) = decode_value_as_register(&instruction) {
+								self.registers[target as usize] ^= self.registers[value as usize];
+							} else {
+								return Err(VMError::VMInvalidValueError)
+							}
+						} else {
+							return Err(VMError::VMInvalidTargetError)
+						}
+					},
 					_ => return Err(VMError::VMInvalidOpcodeError)
 				}
 				return Ok(instruction)
@@ -214,7 +264,7 @@ fn decode_target(instruction: &Instruction) -> Result<Rsize, VMError> {
 	}
 }
 
-fn decode_value_as_target(instruction: &Instruction) -> Result<Rsize, VMError> {
+fn decode_value_as_register(instruction: &Instruction) -> Result<Rsize, VMError> {
 	let result = (instruction & 0x00FF) as Rsize;
 	if result <= 0xd {
 		Ok(result)
