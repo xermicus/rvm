@@ -106,7 +106,14 @@ fn assemble_line(line: &str) -> Result<Instruction, Error> {
 		Some("rd") => instruction_builder.value_hex = Some(RD),
 		Some("rf") => instruction_builder.value_hex = Some(RF),
 		Some("rc") => instruction_builder.value_hex = Some(RC),
-		Some(x) => instruction_builder.value_hex = x.parse::<Rsize>().ok(),
+		Some(x) => {
+			let value = x.parse::<Rsize>();
+			if instruction_builder.opcode_hex == Some(SET) {
+				instruction_builder.value_hex = value.ok();
+			} else { 
+				return Err(Error::ParseNoValueError)
+			};
+		},
 		_ => {}
 	}
 

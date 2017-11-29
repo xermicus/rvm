@@ -40,12 +40,40 @@ impl Context {
 					},
 					Ok(SET) => {
 						match decode_target(&instruction) {
+							Ok(target) => {
+								self.registers[target as usize] = decode_value(&instruction);
+								return Ok(instruction)
+							},
 							_ => return Err(VMError::VMUnimplementedError)
 						}
 					},
-					Ok(PSH) => {},
-					Ok(POP) => {},
-					Ok(ADD) => {},
+					Ok(PSH) => {
+						match decode_target(&instruction) {
+							_ => return Err(VMError::VMUnimplementedError)
+						}
+					},
+					Ok(POP) => {
+						match decode_target(&instruction) {
+							_ => return Err(VMError::VMUnimplementedError)
+						}
+					},
+					Ok(ADD) => {
+						match decode_target(&instruction) {
+							Ok(target) => {
+								if let Ok(value) = decode_value_as_target(&instruction) {
+									if let Some(new_value) = self.registers[target as usize].checked_add(self.registers[value as usize]) {
+										self.registers[target as usize] = new_value;
+										return Ok(instruction)
+									} else {
+										return Err(VMError::VMRegisterOverflowError)
+									};
+								} else { 
+									return Err(VMError::VMInvalidValueError)
+								};
+							},
+							_ => return Err(VMError::VMRegisterOverflowError)
+						}
+					},
 					Ok(SUB) => {},
 					Ok(MUL) => {},
 					Ok(DIV) => {},
@@ -74,7 +102,7 @@ pub fn run(bytecode: Bytecode) -> Result<Context, VMError> {
 
 	loop {
 		match context.step()	{
-			Ok(instruction) => println!("Step ok"),
+			Ok(instruction) => println!("Step ok, trace registers: {:?}", context.registers),
 			Err(error) => {
 				let faulty_index = context.registers[RN as usize];
 				match error {
@@ -131,6 +159,15 @@ fn decode_target(instruction: &Instruction) -> Result<Rsize, VMError> {
 	}
 }
 
-fn decode_value(instruction: &Instruction) -> Result<Rsize, VMError> {
-	Ok(((instruction & 0x00FF)) as Rsize)
+fn decode_value_as_target(instruction: &Instruction) -> Result<Rsize, VMError> {
+	let result = (instruction & 0x00FF) as Rsize;
+	if result <= 0xd {
+		Ok(result)
+	} else {
+		Err(VMError::VMInvalidTargetError)
+	}
+}
+
+fn decode_value(instruction: &Instruction) -> Rsize {
+	((instruction & 0x00FF)) as Rsize
 }
