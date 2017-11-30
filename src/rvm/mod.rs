@@ -8,7 +8,7 @@ const R0: Rsize = 0x0;
 const R1: Rsize = 0x1;
 const R2: Rsize = 0x2;
 const R3: Rsize = 0x3;
-const R4: Rsize = 0x5;
+const R4: Rsize = 0x4;
 const R5: Rsize = 0x5;
 const R6: Rsize = 0x6;
 const R7: Rsize = 0x7;
@@ -38,8 +38,8 @@ const XOR: Rsize = 0xf;
 const HALT: u8 = 0x0;
 const CALL: u8 = 0x1;
 
-const EQ: u8 = 0x0;
-const LE: u8 = 0x1;
+const LE: u8 = 0x0;
+const EQ: u8 = 0x1;
 const GR: u8 = 0x2;
 
 pub enum Error {
@@ -60,6 +60,7 @@ pub enum VMError {
 	VMInvalidValueError,
 	VMRegisterOverflowError,
 	VMStackOverflowError,
+	VMStackInvalidAccessError,
 	VMUnimplementedError
 }
 

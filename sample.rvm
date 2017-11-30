@@ -1,9 +1,15 @@
-set r0 20
+set r0 0
 set r1 10
+set r2 20
+set r3 30
+set r4 2
+psh r0 r1
+psh r2 r3
+lpt r5 r4
 #compare r0 r1
 chk r0 r1
 #smaller
-set rc 1
+set rc 0
 set r2 30
 cns r3 r2
 int

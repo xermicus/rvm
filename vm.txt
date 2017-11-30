@@ -24,15 +24,15 @@ instructions:
 	opcode  #	target	value	description
 	int	0	sys	null	interrupt according to rs register. 0 = hlt, 1 = syscall	
 	set	1	rX	u8	load value into register
-	psh	2	rX	u8	push value from register r0 .. r7 to data section (pointer @rd). value is optional (default 1) to store multiple registers. increases rd for free
-	pop	3	rX	u8	pop value from data section. analog to psh
+	psh	2	rX	rX	push register to stack (pointer @rd). push all registers between target and value if target != value (absolute distance upward). increases rd for free
+	pop	3	rX	rX	pop value from data section. analog to psh
 	add	4	rX	rX	addition, result in target
 	sub	5	rX	rX	subtraction, result in target
 	mul	6	rX	rX	multiplication, result in target
 	div	7	rX	rX	division, result in target
 	chk	8	rX	rX	compare target register to value register. sets flag register (see rf)
 	cns	9	rX	rX	conditional set: set register depending on rf to value according to cr. eg: (chk r0, r1; set rc 0; cns rn r2) will set rn to r2 if r0 = r1
-	lpt	A	rX	rX	load pointer
+	lpt	A	rX	rX	load pointer: loads value to target register at stack offset in value register
 	lsh	B	rX	rX	left shift
 	rsh	C	rX	rX	right shift
 	and	D	rX	rX	bitwise and
