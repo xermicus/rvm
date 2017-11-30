@@ -38,6 +38,10 @@ const XOR: Rsize = 0xf;
 const HALT: u8 = 0x0;
 const CALL: u8 = 0x1;
 
+const EQ: u8 = 0x0;
+const LE: u8 = 0x1;
+const GR: u8 = 0x2;
+
 pub enum Error {
         ParseNoOpcodeError,
         ParseNoTargetError,

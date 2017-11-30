@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use super::*;
 
 #[derive(Default, Debug)]
@@ -159,8 +160,49 @@ impl Context {
 							_ => return Err(VMError::VMRegisterOverflowError)
 						}
 					},
-					Ok(CHK) => {},
-					Ok(CNS) => {},
+					Ok(CHK) => {
+						if let Ok(target) = decode_target(&instruction) {
+							if let Ok(value) = decode_value_as_register(&instruction) {
+								match self.registers[target as usize].cmp(&self.registers[value as usize]) {
+									Ordering::Equal => {
+										self.registers[RF as usize] = EQ;
+									},
+									Ordering::Less => {
+										self.registers[RF as usize] = LE;
+									},
+									Ordering::Greater => {
+										self.registers[RF as usize] = GR;
+									}
+								}
+							} else {
+								return Err(VMError::VMInvalidValueError)
+							}
+						} else {
+							return Err(VMError::VMInvalidTargetError)
+						}
+					},
+					Ok(CNS) => {
+						if let Ok(target) = decode_target(&instruction) {
+							if let Ok(value) = decode_value_as_register(&instruction) {
+								if self.registers[RF as usize] == self.registers[RC as usize] {
+									self.registers[target as usize] = self.registers[value as usize];
+								};
+								/*match self.registers[RC as usize] {
+									EQ => {
+										self.registers[target as usize] = self.registers[value as usize];
+									},
+									LE => {
+										self.registers[target as usize] = self.registers[value as usize];
+									}
+									_ => println!("something else")
+								}*/
+							} else {
+								return Err(VMError::VMInvalidValueError)
+							}
+						} else {
+							return Err(VMError::VMInvalidTargetError)
+						}
+					},
 					Ok(LPT) => {},
 					Ok(LSH) => {
 						if let Ok(target) = decode_target(&instruction) {

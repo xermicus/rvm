@@ -1,18 +1,9 @@
-set r0 10
-set r1 20
-set r2 30
-set r3 40
-psh r0 r3
-set r0 0
-set r1 0
-set r2 0
-set r3 0
-pop r0 r2
-xor r0 r1
+set r0 20
+set r1 10
+#compare r0 r1
 chk r0 r1
-set rc 0
-cns rn r0
-add r0 r1
-set rs 15
-xor rs rs
+#smaller
+set rc 1
+set r2 30
+cns r3 r2
 int

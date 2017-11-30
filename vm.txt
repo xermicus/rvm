@@ -16,8 +16,8 @@ registers:
 	r7	7	general purpose registers
 	rn	8	next instruction
 	rd	9	data pointer
-	rf	A	flag register: 0=, 1<, 2>
-	rc	B	conditional register: 0=, 1<, 2>
+	rf	A	flag register: 0=equal =, 1=less <, 2=greater >
+	rc	B	conditional register: 0=equal =, 1=less<, 2=great >
 	rs	C	interrupt register
 
 instructions:
@@ -30,8 +30,8 @@ instructions:
 	sub	5	rX	rX	subtraction, result in target
 	mul	6	rX	rX	multiplication, result in target
 	div	7	rX	rX	division, result in target
-	chk	8	rX	rX	compare, sets flag register
-	cns	9	rX	rX	conditional set: set register depending on rf to value according to cr. eg: (chk r0, r1; set rc 0; cns rn 37) will set rn to 37 if r0 = r1
+	chk	8	rX	rX	compare target register to value register. sets flag register (see rf)
+	cns	9	rX	rX	conditional set: set register depending on rf to value according to cr. eg: (chk r0, r1; set rc 0; cns rn r2) will set rn to r2 if r0 = r1
 	lpt	A	rX	rX	load pointer
 	lsh	B	rX	rX	left shift
 	rsh	C	rX	rX	right shift
