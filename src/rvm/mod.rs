@@ -55,6 +55,7 @@ pub enum VMError {
 	VMInvalidTargetError,
 	VMInvalidValueError,
 	VMRegisterOverflowError,
+	VMStackOverflowError,
 	VMUnimplementedError
 }
 

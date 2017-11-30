@@ -54,7 +54,11 @@ impl Context {
 							if let Ok(value) = decode_value_as_register(&instruction) {
 								for register in target.min(value)..target.max(value)+1 {
 									self.stack.insert(self.registers[RD as usize] as usize, self.registers[register as usize]);
-									self.registers[RD as usize] += 1
+									if let Some(new_rd) = self.registers[RD as usize].checked_add(1) {
+										self.registers[RD as usize] = new_rd;
+									} else {
+										return Err(VMError::VMStackOverflowError)
+									}
 								}
 								println!("Stack: {:?}", self.stack);
 							} else {
@@ -65,8 +69,22 @@ impl Context {
 						}
 					},
 					Ok(POP) => {
-						match decode_target(&instruction) {
-							_ => return Err(VMError::VMUnimplementedError)
+						if let Ok(target) = decode_target(&instruction) {
+							if let Ok(value) = decode_value_as_register(&instruction) {
+								for register in (target.min(value)..target.max(value)+1).rev() {
+									self.registers[register as usize] = self.stack.remove(self.registers[RD as usize] as usize -1);
+									if let Some(new_rd) = self.registers[RD as usize].checked_sub(1) {
+										self.registers[RD as usize] = new_rd;
+									} else {
+										return Err(VMError::VMStackOverflowError)
+									}
+								}
+								println!("Stack: {:?}", self.stack);
+							} else {
+								return Err(VMError::VMInvalidValueError)
+							}
+						} else {
+							return Err(VMError::VMInvalidTargetError)
 						}
 					},
 					Ok(ADD) => {
@@ -246,6 +264,9 @@ pub fn run(bytecode: Bytecode) -> Result<Context, VMError> {
 					}
 					VMError::VMRegisterOverflowError => {
 						println!("Error while decoding instruction\n\t-> Hint: Register overflow / underflow");
+					}
+					VMError::VMStackOverflowError => {
+						println!("Error while decoding instruction\n\t-> Hint: Stack overflow");
 					}
 					VMError::VMHaltError => break,
 					_ => println!("Unhandled Runtime Error")
