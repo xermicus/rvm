@@ -50,9 +50,18 @@ impl Context {
 						}
 					},
 					Ok(PSH) => {
-						match decode_target(&instruction) {
-							//if let Som
-							_ => return Err(VMError::VMUnimplementedError)
+						if let Ok(target) = decode_target(&instruction) {
+							if let Ok(value) = decode_value_as_register(&instruction) {
+								for register in target.min(value)..target.max(value)+1 {
+									self.stack.insert(self.registers[RD as usize] as usize, self.registers[register as usize]);
+									self.registers[RD as usize] += 1
+								}
+								println!("Stack: {:?}", self.stack);
+							} else {
+								return Err(VMError::VMInvalidValueError)
+							}
+						} else {
+							return Err(VMError::VMInvalidTargetError)
 						}
 					},
 					Ok(POP) => {

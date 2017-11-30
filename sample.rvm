@@ -1,5 +1,7 @@
 set r0 129
 set r1 10
+set r2 50
+psh r0 r2
 xor r0 r1
 chk r0 r1
 set rc 0
