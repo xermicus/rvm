@@ -37,7 +37,7 @@ impl InstructionBuilder {
 		Ok(self.instruction)
 	}
 
-	fn build_sloc(self) -> Result<Instruction, Error> {
+	/*fn build_sloc(self) -> Result<Instruction, Error> {
 		unimplemented!()
 	}
 	
@@ -46,7 +46,7 @@ impl InstructionBuilder {
 
 fn disassemble_line(line: Instruction) -> Sloc {
 	unimplemented!()
-}
+*/}
 
 
 fn assemble_line(line: &str) -> Result<Instruction, Error> {
@@ -134,7 +134,6 @@ pub fn assemble_file(path: &str) -> Result<Bytecode, Error> {
 					Error::ParseNoOpcodeError => println!("Error at line {}: {}\n\t-> Hint: Invalid opcode", linenumber, line),
 					Error::ParseNoTargetError => println!("Error at line {}: {}\n\t-> Hint: Must be a register", linenumber, line),
 					Error::ParseNoValueError => println!("Error at line {}: {}\n\t-> Hint: Must be a register (8bit integer in case of \"set\")", linenumber, line),
-					_ => println!("Unknown error at line number {}: {:?}", linenumber, line)
 				};
 				return Err(error)
 			}

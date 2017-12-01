@@ -3,9 +3,9 @@ use super::*;
 
 #[derive(Default, Debug)]
 pub struct Context {
-        registers: [Rsize; 13],
-        stack: Stack,
-	bytecode: Bytecode
+        pub registers: [Rsize; 13],
+        pub stack: Stack,
+	pub bytecode: Bytecode
 }
 
 impl Context {
@@ -123,7 +123,7 @@ impl Context {
 									};
 								} else { 
 									return Err(VMError::VMInvalidValueError)
-								};
+								}
 							},
 							_ => return Err(VMError::VMRegisterOverflowError)
 						}
@@ -273,9 +273,7 @@ impl Context {
 				return Ok(instruction)
 			},
 			Err(error) => return Err(error)
-		};
-
-		return Err(VMError::VMRunError)
+		}
 	}
 }
 
@@ -285,7 +283,7 @@ pub fn run(bytecode: Bytecode) -> Result<Context, VMError> {
 
 	loop {
 		match context.step()	{
-			Ok(instruction) => println!("Step ok, trace registers: {:?}", context.registers),
+			Ok(instruction) => println!("Step {:x} ok, trace registers: {:?}", instruction, context.registers),
 			Err(error) => {
 				let faulty_index = context.registers[RN as usize];
 				match error {
@@ -323,14 +321,13 @@ pub fn run(bytecode: Bytecode) -> Result<Context, VMError> {
 						println!("Error while decoding instruction\n\t-> Hint: Invalid Stack access");
 					}
 					VMError::VMHaltError => break,
-					_ => println!("Unhandled Runtime Error")
 				};
 				break
 			}
 		}; 
 	}
 
-	Ok(Context::default())
+	Ok(context)
 }
 
 fn decode_opcode(instruction: &Instruction) -> Result<Rsize, VMError> {

@@ -46,12 +46,12 @@ pub enum Error {
         ParseNoOpcodeError,
         ParseNoTargetError,
         ParseNoValueError,
-        ParseLineError,
-        ParseFileError,
+        //ParseLineError,
+        //ParseFileError,
 }
 
 pub enum VMError {
-	VMRunError,
+	//VMRunError,
 	VMContextFetchNextError,
 	VMContextFetchInvalidError,
 	VMHaltError,
