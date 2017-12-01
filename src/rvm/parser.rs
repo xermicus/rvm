@@ -128,7 +128,7 @@ pub fn assemble_file(path: &str) -> Result<Bytecode, Error> {
 		let line = line.trim();
 		if line.starts_with('#') || line.is_empty() { continue };
 		match assemble_line(line) {
-			Ok(instruction) => { bytecode.push(instruction); println!("\t{}:\t0x{:4x}\t#{}", linenumber, instruction, line) },
+			Ok(instruction) => { bytecode.push(instruction); debug!("\t{}:\t0x{:4x}\t#{}", linenumber, instruction, line) },
 			Err(error) => {
 				match error {
 					Error::ParseNoOpcodeError => println!("Error at line {}: {}\n\t-> Hint: Invalid opcode", linenumber, line),

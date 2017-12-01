@@ -1,4 +1,5 @@
 use std::cmp::Ordering;
+use std::char;
 use super::*;
 
 #[derive(Default, Debug)]
@@ -30,14 +31,29 @@ impl Context {
 	fn step(&mut self) -> Result<Instruction, VMError> {
 		match self.fetch() {
 			Ok(instruction) => {
-				println!("fetched: 0x{:4x}", instruction);
 				match decode_opcode(&instruction) {
 					Ok(INT) => {
 						match self.registers[RS as usize] {
 							HALT => return Err(VMError::VMHaltError),
-							CALL => {
-								return Err(VMError::VMUnimplementedError)
+							PRINTLINE => {
+								let mut index = self.registers[R0 as usize] as usize;
+								let mut string = String::new();
+								loop {
+									if let Some(raw) = self.stack.get(index as usize) {
+										if let Some(chr) = char::from_u32(raw.to_owned() as u32) {
+											string.push(chr);
+										} else {
+											break
+										}
+										index += 1;
+									} else {
+										break
+										//return Err(VMError::VMStackInvalidAccessError)
+									}
+								}
+								println!("{}", string);
 							},
+							READLINE => return Err(VMError::VMUnimplementedError),
 							_ => return Err(VMError::VMUnimplementedError)
 						}
 					},
@@ -61,7 +77,7 @@ impl Context {
 										return Err(VMError::VMStackOverflowError)
 									}
 								}
-								println!("Stack: {:?}", self.stack);
+								debug!("PSH ok, stack: {:?}", self.stack);
 							} else {
 								return Err(VMError::VMInvalidValueError)
 							}
@@ -84,7 +100,7 @@ impl Context {
 										return Err(VMError::VMStackOverflowError)
 									}
 								}
-								println!("Stack: {:?}", self.stack);
+								debug!("PSH ok, stack: {:?}", self.stack);
 							} else {
 								return Err(VMError::VMInvalidValueError)
 							}
@@ -97,7 +113,6 @@ impl Context {
 							Ok(target) => {
 								if let Ok(value) = decode_value_as_register(&instruction) {
 									if let Some(new_value) = self.registers[target as usize].checked_add(self.registers[value as usize]) {
-										println!("register: {}\t value: {}", target, new_value);
 										self.registers[target as usize] = new_value;
 										return Ok(instruction)
 									} else {
@@ -115,7 +130,6 @@ impl Context {
 							Ok(target) => {
 								if let Ok(value) = decode_value_as_register(&instruction) {
 									if let Some(new_value) = self.registers[target as usize].checked_sub(self.registers[value as usize]) {
-										println!("register: {}\t value: {}", target, new_value);
 										self.registers[target as usize] = new_value;
 										return Ok(instruction)
 									} else {
@@ -133,7 +147,6 @@ impl Context {
 							Ok(target) => {
 								if let Ok(value) = decode_value_as_register(&instruction) {
 									if let Some(new_value) = self.registers[target as usize].checked_mul(self.registers[value as usize]) {
-										println!("register: {}\t value: {}", target, new_value);
 										self.registers[target as usize] = new_value;
 										return Ok(instruction)
 									} else {
@@ -151,7 +164,6 @@ impl Context {
 							Ok(target) => {
 								if let Ok(value) = decode_value_as_register(&instruction) {
 									if let Some(new_value) = self.registers[target as usize].checked_div(self.registers[value as usize]) {
-										println!("register: {}\t value: {}", target, new_value);
 										self.registers[target as usize] = new_value;
 										return Ok(instruction)
 									} else {
@@ -283,7 +295,7 @@ pub fn run(bytecode: Bytecode) -> Result<Context, VMError> {
 
 	loop {
 		match context.step()	{
-			Ok(instruction) => println!("Step {:x} ok, trace registers: {:?}", instruction, context.registers),
+			Ok(instruction) => debug!("Step {:x} ok, trace registers: {:?}", instruction, context.registers),
 			Err(error) => {
 				let faulty_index = context.registers[RN as usize];
 				match error {

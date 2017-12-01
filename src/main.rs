@@ -3,7 +3,7 @@ use std::process::exit;
 
 mod rvm;
 
-//#[macro_use] extern crate log;
+#[macro_use] extern crate log;
 
 fn main() {
 	let filepath: String;
@@ -15,14 +15,14 @@ fn main() {
                 exit(1);
         }
 
-	println!("Assembling {}", filepath);
+	debug!("Assembling {}", filepath);
 	match rvm::parser::assemble_file(&filepath) {
-		Ok(assembly) => { println!("success!"); bytecode = assembly; },
+		Ok(assembly) => { debug!("success!"); bytecode = assembly; },
 		_ => { println!("failed to parse file {}", filepath); exit(1) }
 	}
 
 	match rvm::vm::run(bytecode) {
-		Ok(context) => println!("Step ok, trace registers: {:?}", context.registers),
+		Ok(context) => debug!("Execution ok\nbacktrace registers: {:?}\nbacktrace stack: {:?}", context.registers, context.stack),
 		_ => println!("Error in execution")
 	}
 	

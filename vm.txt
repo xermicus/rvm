@@ -39,3 +39,5 @@ instructions:
 	bor	E	rX	rX	bitwise or
 	xor	F	rX	rX	bitwise xor
 
+calls:
+	PRINTLINE	print chars from stack until null is reached, starting from pointer in r0
