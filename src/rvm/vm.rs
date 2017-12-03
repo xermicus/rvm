@@ -1,5 +1,6 @@
 use std::cmp::Ordering;
 use std::char;
+use std::io;
 use super::*;
 
 #[derive(Default, Debug)]
@@ -53,7 +54,23 @@ impl Context {
 								}
 								println!("{}", string);
 							},
-							READLINE => return Err(VMError::VMUnimplementedError),
+							READLINE => { 
+								let mut input = String::new();
+								if let Ok(line) = io::stdin().read_line(&mut input) {
+									input.pop();
+									let mut chars = input.chars();
+									while let Some(chr) = chars.next() {
+										self.stack.push(chr as u8);
+										if let Some(new_rd) = self.registers[RD as usize].checked_add(1) {
+											self.registers[RD as usize] = new_rd;
+										} else {
+											return Err(VMError::VMStackOverflowError)
+										}
+									};
+								} else {
+									return Err(VMError::VMInterruptError)
+								}
+							},
 							_ => return Err(VMError::VMUnimplementedError)
 						}
 					},
@@ -331,6 +348,9 @@ pub fn run(bytecode: Bytecode) -> Result<Context, VMError> {
 					}
 					VMError::VMStackInvalidAccessError => {
 						println!("Error while decoding instruction\n\t-> Hint: Invalid Stack access");
+					}
+					VMError::VMInterruptError => {
+						println!("Error while decoding instruction\n\t-> Hint: Interrupt Error");
 					}
 					VMError::VMHaltError => break,
 				};

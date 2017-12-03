@@ -22,7 +22,7 @@ registers:
 
 instructions:
 	opcode  #	target	value	description
-	int	0	sys	null	interrupt according to rs register. 0 = hlt, 1 = syscall	
+	int	0	sys	null	interrupt according to rs register. 0 = hlt, 1 = syscall
 	set	1	rX	u8	load value into register
 	psh	2	rX	rX	push register to stack (pointer @rd). push all registers between target and value if target != value (absolute distance upward). increases rd for free
 	pop	3	rX	rX	pop value from data section. analog to psh
@@ -41,3 +41,5 @@ instructions:
 
 calls:
 	PRINTLINE	print chars from stack until null is reached, starting from pointer in r0
+	READLINE	reads chars and push them to stack until \n is reached
+

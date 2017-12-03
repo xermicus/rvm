@@ -1,18 +1,5 @@
-set r0 72
-set r1 101
-set r2 108
-set r3 108
-set r4 111
-set r5 32
-set r6 87
-set r7 111
-psh r0 r7
-set r0 114
-set r1 108
-set r2 100
-set r3 33
-psh r0 r3
-xor r0 r0
+set rs 2
+int
 set rs 1
 int
 xor rs rs

@@ -52,7 +52,7 @@ pub enum Error {
 }
 
 pub enum VMError {
-	//VMRunError,
+	VMInterruptError,
 	VMContextFetchNextError,
 	VMContextFetchInvalidError,
 	VMHaltError,
