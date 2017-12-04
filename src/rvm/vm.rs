@@ -56,17 +56,25 @@ impl Context {
 							},
 							READLINE => { 
 								let mut input = String::new();
+								let mut length = self.registers[R0 as usize] as usize;
+								let mut count = 0;
 								if let Ok(line) = io::stdin().read_line(&mut input) {
 									input.pop();
 									let mut chars = input.chars();
 									while let Some(chr) = chars.next() {
+										if count >= length {
+											break
+										}
 										self.stack.push(chr as u8);
 										if let Some(new_rd) = self.registers[RD as usize].checked_add(1) {
 											self.registers[RD as usize] = new_rd;
 										} else {
 											return Err(VMError::VMStackOverflowError)
 										}
+										count += 1;
 									};
+									self.registers[R0 as usize] = count as Rsize;
+									println!("R0 = {}",self.registers[R0 as usize]);
 								} else {
 									return Err(VMError::VMInterruptError)
 								}

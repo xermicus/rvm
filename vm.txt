@@ -41,5 +41,5 @@ instructions:
 
 calls:
 	PRINTLINE	print chars from stack until null is reached, starting from pointer in r0
-	READLINE	reads chars and push them to stack until \n is reached
+	READLINE	reads n chars (n=R0) and push them to stack until \n is reached
 
